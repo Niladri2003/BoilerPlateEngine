@@ -62,13 +62,13 @@ func (e *BoilerplateEngine) Generate(req models.BoilerplateRequest) (models.Boil
 		ReturnType   string
 		FunctionName string
 		Parameters   string
-		TestCases    []map[string]interface{}
+		TestCases    []models.TestCase // Now the type is correct
 	}{
 		Includes:     includes[lang],
 		ReturnType:   returnType,
 		FunctionName: spec.FunctionName,
 		Parameters:   strings.Join(params, ", "),
-		TestCases:    spec.TestCases,
+		TestCases:    spec.TestCases, // This is now compatible
 	}
 
 	var fullCode bytes.Buffer
@@ -79,11 +79,12 @@ func (e *BoilerplateEngine) Generate(req models.BoilerplateRequest) (models.Boil
 	return models.BoilerplateResponse{
 		Signature: signature,
 		FullCode:  fullCode.String(),
+		TestCase:  spec.TestCases,
 	}, nil
 }
 
 func (e *BoilerplateEngine) MergeSubmission(signature, userCode, fullCode string) string {
-	placeholder := "// Implement here"
+	placeholder := "// Implement here\n"
 	if strings.Contains(fullCode, placeholder) {
 		return strings.Replace(fullCode, placeholder, userCode, 1)
 	}
